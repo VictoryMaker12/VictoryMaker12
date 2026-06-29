@@ -1,0 +1,92 @@
+const teams = [
+  { id: "blues", sport: "hockey", league: "nhl", name: "St. Louis Blues", color:"#00529B" },
+  { id: "cardinals", sport: "baseball", league: "mlb", name: "St. Louis Cardinals", color:"#C41E3A" },
+  { id: "fortyniners", sport: "football", league: "nfl", name: "San Francisco 49ers", color:"#AA0000" }
+];
+
+async function checkTeam(team){
+
+const url = `https://site.api.espn.com/apis/site/v2/sports/${team.sport}/${team.league}/scoreboard`;
+
+try{
+
+const res = await fetch(url);
+const data = await res.json();
+
+const card = document.getElementById(team.id);
+const status = card.querySelector(".status");
+
+let found = false;
+
+for(const game of data.events){
+
+const c = game.competitions[0].competitors;
+
+const me = c.find(x => x.team.displayName === team.name);
+
+if(me){
+
+found = true;
+
+const opp = c.find(x => x.team.displayName !== team.name);
+
+status.innerHTML =
+`${me.team.abbreviation} ${me.score} - ${opp.team.abbreviation} ${opp.score}<br>
+${game.status.type.description}`;
+
+if(game.status.type.completed && parseInt(me.score) > parseInt(opp.score)){
+celebrate(team);
+}
+
+break;
+}
+
+}
+
+if(!found){
+status.innerHTML = "No game today.";
+}
+
+}catch(e){
+status.innerHTML = "Error loading data.";
+}
+
+}
+
+function celebrate(team){
+
+const card = document.getElementById(team.id);
+card.classList.add("win");
+
+document.body.style.background = team.color;
+
+// simple fireworks
+for(let i=0;i<120;i++){
+
+const dot = document.createElement("div");
+
+dot.style.position="fixed";
+dot.style.left=Math.random()*100+"vw";
+dot.style.top=Math.random()*100+"vh";
+dot.style.width="6px";
+dot.style.height="6px";
+dot.style.borderRadius="50%";
+dot.style.background="white";
+
+dot.animate([
+{transform:"scale(0)",opacity:1},
+{transform:"scale(4)",opacity:0}
+],{
+duration:1000
+});
+
+document.body.appendChild(dot);
+
+setTimeout(()=>dot.remove(),1000);
+
+}
+
+}
+
+teams.forEach(checkTeam);
+setInterval(()=>teams.forEach(checkTeam),60000);
