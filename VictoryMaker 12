@@ -1,0 +1,48 @@
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#111;
+color:white;
+text-align:center;
+}
+
+header{
+background:#1c1c1c;
+padding:20px;
+}
+
+h1{
+margin:0;
+font-size:40px;
+}
+
+.container{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:20px;
+padding:20px;
+}
+
+.team{
+background:#222;
+width:300px;
+padding:20px;
+border-radius:15px;
+box-shadow:0 0 15px rgba(255,255,255,0.1);
+}
+
+.status{
+margin-top:10px;
+font-size:18px;
+}
+
+.win{
+animation:flash 0.8s infinite;
+}
+
+@keyframes flash{
+0%{filter:brightness(1);}
+50%{filter:brightness(1.6);}
+100%{filter:brightness(1);}
+}
