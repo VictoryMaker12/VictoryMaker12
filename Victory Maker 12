@@ -1,0 +1,115 @@
+const teams = [
+  {
+    id: "blues",
+    sport: "hockey",
+    league: "nhl",
+    name: "St. Louis Blues"
+  },
+  {
+    id: "cardinals",
+    sport: "baseball",
+    league: "mlb",
+    name: "St. Louis Cardinals"
+  },
+  {
+    id: "fortyniners",
+    sport: "football",
+    league: "nfl",
+    name: "San Francisco 49ers"
+  }
+];
+
+async function checkTeam(team){
+
+const url=`https://site.api.espn.com/apis/site/v2/sports/${team.sport}/${team.league}/scoreboard`;
+
+const res=await fetch(url);
+const data=await res.json();
+
+const card=document.getElementById(team.id);
+const status=card.querySelector(".status");
+
+let found=false;
+
+for(const game of data.events){
+
+const c=game.competitions[0].competitors;
+
+const me=c.find(x=>x.team.displayName===team.name);
+
+if(me){
+
+found=true;
+
+const opp=c.find(x=>x.team.displayName!==team.name);
+
+const myScore=parseInt(me.score||0);
+const oppScore=parseInt(opp.score||0);
+
+status.innerHTML=`${me.team.abbreviation} ${myScore} - ${opp.team.abbreviation} ${oppScore}<br>${game.status.type.description}`;
+
+if(
+game.status.type.completed &&
+myScore>oppScore
+){
+celebrate(team.id);
+}
+
+break;
+
+}
+
+}
+
+if(!found){
+status.innerHTML="No game today.";
+}
+
+}
+
+function celebrate(team){
+
+const card=document.getElementById(team);
+
+card.classList.add("win");
+
+const colors={
+blues:"#00529B",
+cardinals:"#C41E3A",
+fortyniners:"#AA0000"
+};
+
+document.body.style.background=colors[team];
+
+for(let i=0;i<150;i++){
+
+const dot=document.createElement("div");
+
+dot.style.position="fixed";
+dot.style.left=Math.random()*100+"vw";
+dot.style.top=Math.random()*100+"vh";
+dot.style.width="8px";
+dot.style.height="8px";
+dot.style.background="white";
+dot.style.borderRadius="50%";
+
+dot.animate([
+{transform:"scale(0)",opacity:1},
+{transform:"scale(4)",opacity:0}
+],{
+duration:1200
+});
+
+document.body.appendChild(dot);
+
+setTimeout(()=>dot.remove(),1200);
+
+}
+
+}
+
+teams.forEach(checkTeam);
+
+setInterval(()=>{
+teams.forEach(checkTeam);
+},60000);
